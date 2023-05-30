@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -34,5 +35,16 @@ public class GUIContoller : MonoBehaviour
     {
         playerData.DecrementExperience();
         experienceText.text = playerData.GetExperience().ToString();
+    }
+    public void Save()
+    {
+        playerData.SaveData();
+
+    }
+    public void Load()
+    {
+        playerData.LoadData();
+        experienceText.text = playerData.GetExperience().ToString();
+        healthText.text = playerData.GetHeath().ToString();
     }
 }

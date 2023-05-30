@@ -38,12 +38,14 @@ public class GUIContoller : MonoBehaviour
     }
     public void Save()
     {
-        playerData.SaveData();
+        //playerData.SaveData();
+        playerData.SaveDataBinary();
 
     }
     public void Load()
     {
-        playerData.LoadData();
+        //playerData.LoadData();
+        playerData.LoadDataBinary();
         experienceText.text = playerData.GetExperience().ToString();
         healthText.text = playerData.GetHeath().ToString();
     }

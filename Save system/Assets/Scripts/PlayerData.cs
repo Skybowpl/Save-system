@@ -17,6 +17,7 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private int experience;
     private static string JSON_FILE_PATCH;
     private static string BINARY_FILE_PATCH;
+    private static string SAVE_FOLDER;
     private ICloudSaveDataClient client;
 
     async void Awake()
@@ -24,13 +25,13 @@ public class PlayerData : MonoBehaviour
         await UnityServices.InitializeAsync();
         await AuthenticationService.Instance.SignInAnonymouslyAsync();
         client = CloudSaveService.Instance.Data;
-        //Debug.Log(UnityServices.State);
     }
 
     private void Start()
     {
         JSON_FILE_PATCH = Application.dataPath + "/save/save.json";
         BINARY_FILE_PATCH = Application.dataPath + "/save/save.xyz";
+        SAVE_FOLDER = Application.dataPath + "/save";
     }
 
     public void IncrementHealth()
@@ -40,7 +41,8 @@ public class PlayerData : MonoBehaviour
 
     public void DecrementHealth()
     {
-        heath -= 1;
+        if(heath>0)
+            heath -= 1;
     }
 
     public void IncrementExperience()
@@ -50,7 +52,8 @@ public class PlayerData : MonoBehaviour
 
     public void DecrementExperience()
     {
-        experience -= 1;
+        if (experience > 0)
+            experience -= 1;
     }
 
     public int GetHeath()
@@ -63,10 +66,15 @@ public class PlayerData : MonoBehaviour
     }
     public void SaveDataJson()
     {
-        SaveLoadData saveLoadData = new SaveLoadData();
-        saveLoadData.healthToSave = heath;
-        saveLoadData.experienceToSave = experience;
-        File.WriteAllText(JSON_FILE_PATCH, JsonUtility.ToJson(saveLoadData));
+       if(!Directory.Exists(SAVE_FOLDER))
+       {
+            Directory.CreateDirectory(SAVE_FOLDER);
+       }
+
+       SaveLoadData saveLoadData = new SaveLoadData();
+       saveLoadData.healthToSave = heath;
+       saveLoadData.experienceToSave = experience;
+       File.WriteAllText(JSON_FILE_PATCH, JsonUtility.ToJson(saveLoadData));
 
     }
     public void LoadDataJson()
@@ -88,7 +96,7 @@ public class PlayerData : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No save file announcement");
+            Debug.LogError("No save file");
         }
     }
 
@@ -130,7 +138,8 @@ public class PlayerData : MonoBehaviour
         public int experienceToSave = 50;
     }
 
-    /*public void SaveDataBinary()
+/* Class used to generate binnnary save file for loading test
+public void SaveDataBinary()
 {
     BinaryFormatter binaryFormatter = new BinaryFormatter();
     SaveLoadData saveLoadData = new SaveLoadData();

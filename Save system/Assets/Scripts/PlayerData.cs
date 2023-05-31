@@ -1,9 +1,13 @@
+using Newtonsoft.Json;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
+using Unity.Services.Authentication;
+using Unity.Services.CloudSave;
+using Unity.Services.Core;
 using UnityEngine;
 using static UnityEditor.Progress;
 
@@ -13,8 +17,17 @@ public class PlayerData : MonoBehaviour
     [SerializeField] private int experience;
     private static string JSON_FILE_PATCH;
     private static string BINARY_FILE_PATCH;
+    private ICloudSaveDataClient client;
 
-    private void Awake()
+    async void Awake()
+    {
+        await UnityServices.InitializeAsync();
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        client = CloudSaveService.Instance.Data;
+        //Debug.Log(UnityServices.State);
+    }
+
+    private void Start()
     {
         JSON_FILE_PATCH = Application.dataPath + "/save/save.json";
         BINARY_FILE_PATCH = Application.dataPath + "/save/save.xyz";
@@ -88,6 +101,27 @@ public class PlayerData : MonoBehaviour
         experience = saveLoadData.experienceToSave;
         fileStream.Close();
     }
+
+    public async void SaveDataCloud()
+    {
+        SaveLoadData saveLoadData = new SaveLoadData();
+        saveLoadData.healthToSave = heath;
+        saveLoadData.experienceToSave = experience;
+        Dictionary<string, object> data = new Dictionary<string, object> { {"saved_player", saveLoadData } };
+        await client.ForceSaveAsync(data);
+        heath = saveLoadData.healthToSave;
+        experience = saveLoadData.experienceToSave;
+    }
+
+    public async Task LoadDataCloud()
+    {
+        var query = await client.LoadAsync(new HashSet<string> {"saved_player"});
+        var stringData = query["saved_player"];
+        SaveLoadData saveLoadData = JsonConvert.DeserializeObject<SaveLoadData>(stringData);
+        heath = saveLoadData.healthToSave;
+        experience = saveLoadData.experienceToSave;
+    }
+
 
     [System.Serializable]
     private class SaveLoadData

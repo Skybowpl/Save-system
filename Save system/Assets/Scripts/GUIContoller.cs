@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -39,7 +38,10 @@ public class GUIContoller : MonoBehaviour
     public void Save()
     {
         playerData.SaveDataJson();
-
+    }
+    public void CloudSave()
+    {
+        playerData.SaveDataCloud();
     }
     public void Load()
     {
@@ -47,4 +49,11 @@ public class GUIContoller : MonoBehaviour
         experienceText.text = playerData.GetExperience().ToString();
         healthText.text = playerData.GetHeath().ToString();
     }
+    public async void CloudLoad()
+    {
+        await playerData.LoadDataCloud();
+        experienceText.text = playerData.GetExperience().ToString();
+        healthText.text = playerData.GetHeath().ToString();
+    }
+
 }

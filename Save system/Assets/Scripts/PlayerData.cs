@@ -126,8 +126,8 @@ public class PlayerData : MonoBehaviour
     [System.Serializable]
     private class SaveLoadData
     {
-        public int healthToSave;
-        public int experienceToSave;
+        public int healthToSave = 100;
+        public int experienceToSave = 50;
     }
 
     /*public void SaveDataBinary()
